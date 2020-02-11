@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
-public class CacheServiceImplTest {
+public class CacheServiceImplTest_Illia {
 
     CacheServiceImpl cacheService;
     CacheServiceImpl cacheServiceSpy;
