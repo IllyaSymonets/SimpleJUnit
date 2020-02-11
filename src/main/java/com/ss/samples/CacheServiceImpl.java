@@ -33,7 +33,7 @@ public class CacheServiceImpl implements CacheService {
     }
 
     Object getRealValue(String key) {
-        return sourceFunction!=null ? sourceFunction.apply(key) : null;
+        return sourceFunction != null ? sourceFunction.apply(key) : null;
     }
 
     void handleKeyExists(String key) {
