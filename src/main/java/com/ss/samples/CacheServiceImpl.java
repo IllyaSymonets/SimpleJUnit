@@ -8,9 +8,18 @@ import java.util.function.Function;
 
 public class CacheServiceImpl implements CacheService {
 
-    static Map<String, Object> instance = new HashMap<>();
+    Map<String, Object> instance = new HashMap<>();
     private Function<String, Object> sourceFunction = null;
     private Consumer<String> handler = null;
+
+    public void setSourceFunction(
+        Function<String, Object> sourceFunction) {
+        this.sourceFunction = sourceFunction;
+    }
+
+    public void setHandler(Consumer<String> handler) {
+        this.handler = handler;
+    }
 
     @Override
     public void put(String key, Object value) {
@@ -33,11 +42,11 @@ public class CacheServiceImpl implements CacheService {
     }
 
     Object getRealValue(String key) {
-        return sourceFunction!=null ? sourceFunction.apply(key) : null;
+        return sourceFunction != null ? sourceFunction.apply(key) : null;
     }
 
     void handleKeyExists(String key) {
-        if (Objects.isNull(handler)) {
+        if (Objects.nonNull(handler)) {
             handler.accept(key);
         }
     }
