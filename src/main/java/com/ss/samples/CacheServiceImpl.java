@@ -48,6 +48,8 @@ public class CacheServiceImpl implements CacheService {
     void handleKeyExists(String key) {
         if (Objects.nonNull(handler)) {
             handler.accept(key);
+        }else {
+            throw new RuntimeException("This key already exists!");
         }
     }
 
