@@ -1,76 +1,30 @@
 package com.ss.samples;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
-import org.junit.Rule;
+import org.junit.Assert;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Spy;
-import org.mockito.internal.util.reflection.FieldSetter;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.Silent.class)
+@RunWith(MockitoJUnitRunner.class)
 public class CacheServiceImplTest_Roman {
 
-    @Spy
-    private CacheServiceImpl cacheServiceSpy;
-
-    @Mock
     private Function<String, Object> sourceFunctionMock;
-
-    @Mock
     private Consumer<String> handlerMock;
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     @Test
-    public void getRealValueIsUsedMethodTest() {
-        expectedException.expectMessage("Value was not found!");
-
-        cacheServiceSpy.get("TEST-1");
-
-        verify(cacheServiceSpy).getRealValue("TEST-1");
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void handleKeyExistsIsUsedMethodTest() {
+    public void getHappyPath() {
         long testValue = System.currentTimeMillis();
-        cacheServiceSpy.put("TEST", testValue);
-        cacheServiceSpy.put("TEST", testValue);
-
-        verify(cacheServiceSpy).handleKeyExists("TEST");
-    }
-
-    @Test
-    public void sourceFunctionTest() throws NoSuchFieldException {
-        CacheServiceImpl cacheService = new CacheServiceImpl();
-
-        FieldSetter.setField(cacheService,
-            cacheService.getClass().getDeclaredField("sourceFunction"), sourceFunctionMock);
-
-        when(sourceFunctionMock.apply("KEY")).thenReturn(new Object());
-        sourceFunctionMock.apply("KEY");
-        verify(sourceFunctionMock).apply("KEY");
-
-    }
-
-    @Test(expected = StackOverflowError.class)
-    public void handlerTest() throws NoSuchFieldException {
-        CacheServiceImpl cacheService = new CacheServiceImpl();
-
-        FieldSetter.setField(cacheService,
-            cacheService.getClass().getDeclaredField("handler"), handlerMock);
-
-        doThrow(StackOverflowError.class).when(handlerMock).accept("KEY");
-        handlerMock.accept("KEY");
+        CacheServiceImpl impl = prepareDataForTest("TEST-GET", testValue);
+        assertEquals(testValue, impl.get("TEST-GET"));
     }
 
     @Test
@@ -80,15 +34,51 @@ public class CacheServiceImplTest_Roman {
         assertEquals(testValue, impl.instance.get("TEST-PUT"));
     }
 
+    @Test(expected = RuntimeException.class)
+    public void getMethodThrowRuntimeExceptionTest() {
+        CacheServiceImpl cacheService = prepareDataForTest("TEST-1", 10);
+        cacheService.get("TEST_2");
+    }
+
     @Test
-    public void getHappyPath() {
-        long testValue = System.currentTimeMillis();
-        CacheServiceImpl impl = prepareDataForTest("TEST-GET", testValue);
-        assertEquals(testValue, impl.get("TEST-GET"));
+    public void getRealValueIsUsedTest() {
+        CacheServiceImpl cacheService = prepareDataForTest("TEST-1", 10);
+        when(sourceFunctionMock.apply(Mockito.eq("TEST-2"))).thenReturn(100);
+
+        Assert.assertEquals(cacheService.get("TEST-2"), 100);
+    }
+
+    @Test
+    public void getRealValueIsUsedOnlyOnceTest() {
+        CacheServiceImpl cacheService = prepareDataForTest("TEST-1", 10);
+
+        when(sourceFunctionMock.apply(Mockito.eq("TEST-2"))).thenReturn(100);
+
+        cacheService.get("TEST-2");
+        cacheService.get("TEST-2");
+        cacheService.get("TEST-2");
+
+        verify(sourceFunctionMock, times(1)).apply("TEST-2");
+    }
+
+    @Test
+    public void handlerKeyExistIsUsedTest(){
+        CacheServiceImpl cacheService = prepareDataForTest("TEST-1", 10);
+
+        cacheService.put("TEST-1", 10);
+        cacheService.put("TEST-2", 10);
+        cacheService.put("TEST-2", 10);
+
+        verify(handlerMock).accept("TEST-1");
+        verify(handlerMock).accept("TEST-2");
     }
 
     private CacheServiceImpl prepareDataForTest(String key, long testValue) {
         CacheServiceImpl impl = new CacheServiceImpl();
+        sourceFunctionMock = mock(Function.class);
+        impl.setSourceFunction(sourceFunctionMock);
+        handlerMock = mock(Consumer.class);
+        impl.setHandler(handlerMock);
         impl.put(key, testValue);
         return impl;
     }
