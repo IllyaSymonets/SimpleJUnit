@@ -1,20 +1,32 @@
 package com.ss.samples;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.internal.util.reflection.FieldSetter;
+import org.mockito.junit.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class CacheServiceImplTest_Roman {
 
     @Spy
-    private CacheServiceImpl cacheService;
+    private CacheServiceImpl cacheServiceSpy;
+
+    @Mock
+    private Function<String, Object> sourceFunctionMock;
+
+    @Mock
+    private Consumer<String> handlerMock;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -23,18 +35,42 @@ public class CacheServiceImplTest_Roman {
     public void getRealValueIsUsedMethodTest() {
         expectedException.expectMessage("Value was not found!");
 
-        cacheService.get("TEST-1");
+        cacheServiceSpy.get("TEST-1");
 
-        verify(cacheService).getRealValue("TEST-1");
+        verify(cacheServiceSpy).getRealValue("TEST-1");
     }
 
-    @Test (expected = NullPointerException.class)
+    @Test(expected = NullPointerException.class)
     public void handleKeyExistsIsUsedMethodTest() {
         long testValue = System.currentTimeMillis();
-        cacheService.put("TEST", testValue);
-        cacheService.put("TEST", testValue);
+        cacheServiceSpy.put("TEST", testValue);
+        cacheServiceSpy.put("TEST", testValue);
 
-        verify(cacheService).handleKeyExists("TEST");
+        verify(cacheServiceSpy).handleKeyExists("TEST");
+    }
+
+    @Test
+    public void sourceFunctionTest() throws NoSuchFieldException {
+        CacheServiceImpl cacheService = new CacheServiceImpl();
+
+        FieldSetter.setField(cacheService,
+            cacheService.getClass().getDeclaredField("sourceFunction"), sourceFunctionMock);
+
+        when(sourceFunctionMock.apply("KEY")).thenReturn(new Object());
+        sourceFunctionMock.apply("KEY");
+        verify(sourceFunctionMock).apply("KEY");
+
+    }
+
+    @Test(expected = StackOverflowError.class)
+    public void handlerTest() throws NoSuchFieldException {
+        CacheServiceImpl cacheService = new CacheServiceImpl();
+
+        FieldSetter.setField(cacheService,
+            cacheService.getClass().getDeclaredField("handler"), handlerMock);
+
+        doThrow(StackOverflowError.class).when(handlerMock).accept("KEY");
+        handlerMock.accept("KEY");
     }
 
     @Test
