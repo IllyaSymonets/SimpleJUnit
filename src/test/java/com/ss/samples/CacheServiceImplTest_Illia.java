@@ -46,16 +46,6 @@ public class CacheServiceImplTest_Illia {
         assertEquals(testValue, impl.get("TEST-GET"));
     }
 
-    @Test(expected = RuntimeException.class)
-    public void putRuntimeExceptionTest() {
-
-        long testValue = currentTimeMillis();
-        cacheService.setHandler(null);
-
-        cacheService.put("TEST-PUT", testValue);
-        cacheService.put("TEST-PUT", testValue);
-    }
-
     @Test
     public void putIsHandlerExecutesTest() {
 
