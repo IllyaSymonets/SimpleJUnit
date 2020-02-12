@@ -35,7 +35,7 @@ public class CacheServiceImplTest {
     }
 
     @Test(expected = Exception.class)
-    public void getIfNotExistInRealValue() throws Exception {
+    public void getIfNotExistsInRealValue() throws Exception {
         User user = new User(100500, "User");
         Function<String, Object> sourceFunction = s -> null;
         setValueToPrivateField(cacheService, "sourceFunction", sourceFunction);
@@ -44,7 +44,7 @@ public class CacheServiceImplTest {
     }
 
     @Test
-    public void getIfNotExistButExistInRealValue() throws Exception {
+    public void getIfNotExistsButExistsInRealValue() throws Exception {
         User expectedObject = new User(100500, "User");
         Function<String, Object> sourceFunction = s -> expectedObject;
 
@@ -64,7 +64,7 @@ public class CacheServiceImplTest {
     }
 
     @Test
-    public void putIfExist() throws Exception {
+    public void putIfExists() throws Exception {
         Consumer<String> handlerToMock = System.out::println;
         setValueToPrivateField(cacheService, "handler", handlerToMock);
 
