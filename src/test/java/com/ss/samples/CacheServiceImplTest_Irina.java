@@ -1,123 +1,93 @@
 package com.ss.samples;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static java.lang.System.currentTimeMillis;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 public class CacheServiceImplTest_Irina {
 
-    CacheServiceImpl cacheService;
+    CacheServiceImpl testCache;
+    private Function<String, Object> sourceFunctionMock;
+    private Consumer<String> handlerMock;
 
-    @Before
-    public void before() {
-        cacheService = new CacheServiceImpl();
-        cacheService.instance = new HashMap<>();
+    private CacheServiceImpl prepareDataForTest(String key, long testValue) {
+        testCache = new CacheServiceImpl();
+        sourceFunctionMock = mock(Function.class);
+        handlerMock = mock(Consumer.class);
+        testCache.setHandler(handlerMock);
+        testCache.setSourceFunction(sourceFunctionMock);
+        testCache.put(key, testValue);
+        return testCache;
     }
 
-    @After
-    public void after() {
-        cacheService.instance = new HashMap<>();
+    //GettingPresentInstanceFromTheCache
+    @Test
+    public void getHappyPath() {
+        long testValue = currentTimeMillis();
+        CacheServiceImpl preparedCache = prepareDataForTest("TEST1", testValue);
+        assertEquals(testValue, preparedCache.get("TEST1"));
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void getIfTheKeyNotExistsInSourceFunctionAndCache() {
+        long testValue = currentTimeMillis();
+        CacheServiceImpl preparedCache = prepareDataForTest("TEST", testValue);
+        preparedCache.get("TEST-1");
     }
 
     @Test
-    public void get() {
-        User expectedObject = new User(100500, "User");
-        cacheService.instance.put(String.valueOf(expectedObject.getId()), expectedObject);
+    public void getIfTheKeyExistsInSourceFunctionButNotInCache() {
+        long testValue = currentTimeMillis();
+        CacheServiceImpl preparedCache = prepareDataForTest("TEST", testValue);
 
-        assertEquals(expectedObject, cacheService.get(String.valueOf(expectedObject.getId())));
+        long testValue1 = currentTimeMillis();
+        when(sourceFunctionMock.apply("TEST1")).thenReturn(testValue1); //the behaviour for sourceFunction
+
+        preparedCache.get("TEST1");
+        assertEquals(testValue1, preparedCache.get("TEST1"));
     }
 
-    @Test(expected = Exception.class)
-    public void getIfNotExistsInRealValue() throws Exception {
-        User user = new User(100500, "User");
-        Function<String, Object> sourceFunction = s -> null;
-        setValueToPrivateField(cacheService, "sourceFunction", sourceFunction);
-
-        cacheService.get(String.valueOf(user.getId()));
+    //PuttingANewInstanceIntoACache
+    @Test
+    public void putHappyPath() {
+        long testValue = currentTimeMillis();
+        CacheServiceImpl preparedCache = prepareDataForTest("TEST", testValue);
+        assertEquals(testValue, preparedCache.get("TEST"));
     }
 
     @Test
-    public void getIfNotExistsButExistsInRealValue() throws Exception {
-        User expectedObject = new User(100500, "User");
-        Function<String, Object> sourceFunction = s -> expectedObject;
-
-        setValueToPrivateField(cacheService, "sourceFunction", sourceFunction);
-
-        assertEquals(expectedObject, cacheService.get(String.valueOf(expectedObject.getId())));
+    public void putIfTheKeyAlreadyPresentsInTheCache() {
+        long testValue = currentTimeMillis();
+        CacheServiceImpl preparedCache = prepareDataForTest("TEST", testValue);
+        long testValue1 = currentTimeMillis();
+        preparedCache.put("TEST1", testValue1);
+        assertEquals(testValue1, preparedCache.get("TEST1"));
     }
 
+    //when getting instance not presents in the cache but exists in sourceFunction - need to fix
     @Test
-    public void put() throws Exception {
-        Consumer<String> handlerToMock = System.out::println;
-        setValueToPrivateField(cacheService, "handler", handlerToMock);
-
-        User user = new User(100500, "User");
-        cacheService.put(String.valueOf(user.getId()), user);
-        assertEquals(user, cacheService.instance.get(String.valueOf(user.getId())));
+    public void sourceFunctionAppliesOnes() {
+        long testValue = currentTimeMillis();
+        CacheServiceImpl preparedCache = prepareDataForTest("TEST", testValue);
+        long testValue1 = currentTimeMillis();
+        when(sourceFunctionMock.apply("TEST1")).thenReturn(testValue1); //the behaviour for sourceFunction
+        //how to put an instance to sourceFunction?
+        preparedCache.get("TEST-1");
+        verify(sourceFunctionMock, times(1)).apply("TEST1");
     }
 
+    //when put an instance with the same key to cache
     @Test
-    public void putIfExists() throws Exception {
-        Consumer<String> handlerToMock = System.out::println;
-        setValueToPrivateField(cacheService, "handler", handlerToMock);
-
-        User user = new User(100500, "User");
-        User userTwo = new User(100500, "User Two with the same id");
-
-        cacheService.put(String.valueOf(user.getId()), user);
-        cacheService.put(String.valueOf(userTwo.getId()), userTwo);
-        User actualUser = (User) cacheService.instance.get(String.valueOf(user.getId()));
-        assertEquals(userTwo.getName(), actualUser.getName());
-    }
-
-    private void setValueToPrivateField(
-            Object targetObject,
-            String fieldName,
-            Object value
-    ) throws NoSuchFieldException, IllegalAccessException {
-        Field sourceFunctionField = CacheServiceImpl.class.getDeclaredField(fieldName);
-        sourceFunctionField.setAccessible(true);
-        sourceFunctionField.set(targetObject, value);
-    }
-
-    public static class User {
-        private long id;
-        private String name;
-
-        public User(long id, String name) {
-            this.id = id;
-            this.name = name;
-        }
-
-        public long getId() {
-            return id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof User)) return false;
-            User user = (User) o;
-            if (getId() != user.getId()) return false;
-            return getName() != null ? getName().equals(user.getName()) : user.getName() == null;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = (int) (getId() ^ (getId() >>> 32));
-            result = 31 * result + (getName() != null ? getName().hashCode() : 0);
-            return result;
-        }
+    public void handlerAcceptedOnes() {
+        long testValue = currentTimeMillis();
+        CacheServiceImpl preparedCache = prepareDataForTest("TEST", testValue);
+        long testValue1 = currentTimeMillis();
+        preparedCache.put("TEST", testValue1);
+        verify(handlerMock, times(1)).accept("TEST");
     }
 }
