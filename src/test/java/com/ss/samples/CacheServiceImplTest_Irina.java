@@ -77,7 +77,7 @@ public class CacheServiceImplTest_Irina {
         long testValue1 = currentTimeMillis();
         when(sourceFunctionMock.apply("TEST1")).thenReturn(testValue1); //the behaviour for sourceFunction
         //how to put an instance to sourceFunction?
-        preparedCache.get("TEST-1");
+        preparedCache.get("TEST1");
         verify(sourceFunctionMock, times(1)).apply("TEST1");
     }
 
