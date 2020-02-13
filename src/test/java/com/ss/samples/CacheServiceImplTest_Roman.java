@@ -10,11 +10,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
 public class CacheServiceImplTest_Roman {
 
     private Function<String, Object> sourceFunctionMock;
@@ -62,7 +59,7 @@ public class CacheServiceImplTest_Roman {
     }
 
     @Test
-    public void handlerKeyExistIsUsedTest(){
+    public void handlerKeyExistIsUsedTest() {
         CacheServiceImpl cacheService = prepareDataForTest("TEST-1", 10);
 
         cacheService.put("TEST-1", 10);
@@ -73,6 +70,7 @@ public class CacheServiceImplTest_Roman {
         verify(handlerMock).accept("TEST-2");
     }
 
+    @SuppressWarnings("unchecked")
     private CacheServiceImpl prepareDataForTest(String key, long testValue) {
         CacheServiceImpl impl = new CacheServiceImpl();
         sourceFunctionMock = mock(Function.class);
