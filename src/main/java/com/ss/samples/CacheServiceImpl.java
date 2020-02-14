@@ -8,7 +8,7 @@ import java.util.function.Function;
 
 public class CacheServiceImpl {
 
-    Map<String, AbstractCachedEntity> instance = new HashMap<>();
+    private Map<String, AbstractCachedEntity> instance = new HashMap<>();
     private Function<String, Object> sourceFunction = null;
     private Consumer<AbstractCachedEntity> handler = null;
 
@@ -25,7 +25,7 @@ public class CacheServiceImpl {
         if (instance.containsKey(key)) {
             handleKeyExists(key);
         }
-        _put(key, new AbstractCachedEntity(value));
+        _put(key, value);
     }
 
     public Object get(String key) {
@@ -49,11 +49,12 @@ public class CacheServiceImpl {
         }
     }
 
-    protected void _put(String key, AbstractCachedEntity value) {
-        instance.put(key, value);
+    protected void _put(String key, Object value) {
+        instance.put(key, new AbstractCachedEntity(value));
     }
 
-    class AbstractCachedEntity{
+    class AbstractCachedEntity {
+
         Object value;
 
         AbstractCachedEntity(Object value) {
