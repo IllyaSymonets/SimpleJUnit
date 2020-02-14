@@ -6,30 +6,28 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class CacheServiceImpl implements CacheService {
+public class CacheServiceImpl {
 
-    Map<String, Object> instance = new HashMap<>();
+    Map<String, AbstractCachedEntity> instance = new HashMap<>();
     private Function<String, Object> sourceFunction = null;
-    private Consumer<String> handler = null;
+    private Consumer<AbstractCachedEntity> handler = null;
 
     public void setSourceFunction(
         Function<String, Object> sourceFunction) {
         this.sourceFunction = sourceFunction;
     }
 
-    public void setHandler(Consumer<String> handler) {
+    public void setHandler(Consumer<AbstractCachedEntity> handler) {
         this.handler = handler;
     }
 
-    @Override
     public void put(String key, Object value) {
         if (instance.containsKey(key)) {
             handleKeyExists(key);
         }
-        _put(key, value);
+        _put(key, new AbstractCachedEntity(value));
     }
 
-    @Override
     public Object get(String key) {
         if (!instance.containsKey(key)) {
             Object value = getRealValue(key);
@@ -38,20 +36,33 @@ public class CacheServiceImpl implements CacheService {
             }
             put(key, value);
         }
-        return instance.get(key);
+        return instance.get(key).getValue();
     }
 
-    Object getRealValue(String key) {
+    protected Object getRealValue(String key) {
         return sourceFunction != null ? sourceFunction.apply(key) : null;
     }
 
-    void handleKeyExists(String key) {
+    protected void handleKeyExists(String key) {
         if (Objects.nonNull(handler)) {
-            handler.accept(key);
+            handler.accept(instance.get(key));
         }
     }
 
-    private void _put(String key, Object value) {
+    protected void _put(String key, AbstractCachedEntity value) {
         instance.put(key, value);
+    }
+
+    class AbstractCachedEntity{
+        Object value;
+
+        AbstractCachedEntity(Object value) {
+            super();
+            this.value = value;
+        }
+
+        public Object getValue() {
+            return value;
+        }
     }
 }
