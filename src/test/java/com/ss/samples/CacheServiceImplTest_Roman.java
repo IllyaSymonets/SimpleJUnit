@@ -6,6 +6,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ss.samples.CacheServiceImpl.AbstractCachedEntity;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.junit.Assert;
@@ -15,7 +16,7 @@ import org.mockito.Mockito;
 public class CacheServiceImplTest_Roman {
 
     private Function<String, Object> sourceFunctionMock;
-    private Consumer<String> handlerMock;
+    private Consumer<AbstractCachedEntity> handlerMock;
 
     @Test
     public void getHappyPath() {
@@ -28,7 +29,7 @@ public class CacheServiceImplTest_Roman {
     public void putHappyPath() {
         long testValue = System.currentTimeMillis();
         CacheServiceImpl impl = prepareDataForTest("TEST-PUT", testValue);
-        assertEquals(testValue, impl.instance.get("TEST-PUT"));
+        assertEquals(testValue, impl.instance.get("TEST-PUT").getValue());
     }
 
     @Test(expected = RuntimeException.class)
@@ -68,8 +69,7 @@ public class CacheServiceImplTest_Roman {
         cacheService.put("TEST-2", 10);
         cacheService.put("TEST-2", 10);
 
-        verify(handlerMock).accept("TEST-1");
-        verify(handlerMock).accept("TEST-2");
+        verify(handlerMock, times(2)).accept(Mockito.any());
     }
 
     /*can be before method @Before

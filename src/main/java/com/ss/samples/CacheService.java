@@ -1,6 +1,6 @@
 package com.ss.samples;
 
-public interface CacheService {
-    void put(String key, Object data);
-    Object get(String key);
+public interface CacheService <T> {
+    void put(String key, T data);
+    T get(String key);
 }
