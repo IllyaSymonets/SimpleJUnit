@@ -15,7 +15,7 @@ public class CacheServiceImplTest_Illia {
     CacheServiceImpl cacheService;
     Consumer<String> handlerMock;
     Function<String, Object> sourceFunctionMock;
-
+//unnecessarily to have such method with prepareDataForTest(String key, long testValue). In some tests they execute at the same time.
     @Before
     public void before() {
         cacheService = new CacheServiceImpl();
@@ -25,7 +25,7 @@ public class CacheServiceImplTest_Illia {
         cacheService.setHandler(handlerMock);
         cacheService.instance = new HashMap<>();
     }
-
+//here executes @before method, creates an empty HashMap and other redundant instances
     @Test
     public void putHappyPath() {
 
@@ -35,7 +35,7 @@ public class CacheServiceImplTest_Illia {
 
         assertEquals(testValue, impl.instance.get("TEST-PUT"));
     }
-
+//here executes @before method, creates an empty HashMap and other redundant instances
     @Test
     public void getHappyPath() {
 
@@ -45,7 +45,7 @@ public class CacheServiceImplTest_Illia {
 
         assertEquals(testValue, impl.get("TEST-GET"));
     }
-
+//here executes @before method, creates an empty HashMap and other redundant instances
     @Test
     public void putIsHandlerExecutesTest() {
 
@@ -61,7 +61,7 @@ public class CacheServiceImplTest_Illia {
     public void getRuntimeExceptionTest() {
 
         cacheService.get("TEST-GET");
-
+    //extra empty line
     }
 
     @Test
@@ -72,7 +72,7 @@ public class CacheServiceImplTest_Illia {
             .thenReturn(testValue);
 
         assertEquals(testValue, cacheService.get("TEST-GET"));
-
+        //extra empty line
     }
 
     private CacheServiceImpl prepareDataForTest(String key, long testValue) {
