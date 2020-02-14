@@ -6,51 +6,52 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ss.samples.CacheServiceImpl.AbstractCachedEntity;
+import com.ss.samples.AbstractCacheService.AbstractCachedEntity;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class CacheServiceImplTest_Roman {
+public class AbstractCacheServiceTest_Roman {
 
-    private Function<String, Object> sourceFunctionMock;
+    private Function<String, AbstractCachedEntity> sourceFunctionMock;
     private Consumer<AbstractCachedEntity> handlerMock;
 
     @Test
     public void getHappyPath() {
         long testValue = System.currentTimeMillis();
-        CacheServiceImpl impl = prepareDataForTest("TEST-GET", testValue);
+        AbstractCacheService impl = prepareDataForTest("TEST-GET", testValue);
         assertEquals(testValue, impl.get("TEST-GET"));
     }
 
     @Test
     public void putHappyPath() {
         long testValue = System.currentTimeMillis();
-        CacheServiceImpl impl = prepareDataForTest("TEST-PUT", testValue);
-        assertEquals(testValue, impl.instance.get("TEST-PUT").getValue());
+        AbstractCacheService impl = prepareDataForTest("TEST-PUT", testValue);
+        assertEquals(testValue, impl.get("TEST-PUT"));
     }
 
     @Test(expected = RuntimeException.class)
     public void getMethodThrowRuntimeExceptionTest() {
-        CacheServiceImpl cacheService = prepareDataForTest("TEST-1", 10);
+        AbstractCacheService cacheService = prepareDataForTest("TEST-1", 10);
         cacheService.get("TEST_2");
     }
 
     @Test
     public void getRealValueIsUsedTest() {
-        CacheServiceImpl cacheService = prepareDataForTest("TEST-1", 10);
-        when(sourceFunctionMock.apply(Mockito.eq("TEST-2"))).thenReturn(100);
+        AbstractCacheService cacheService = prepareDataForTest("TEST-1", 10);
+        AbstractCachedEntity entity = new AbstractCachedEntity(100);
+        when(sourceFunctionMock.apply(Mockito.eq("TEST-2"))).thenReturn(entity);
 
         Assert.assertEquals(cacheService.get("TEST-2"), 100);
     }
 
     @Test
     public void getRealValueIsUsedOnlyOnceTest() {
-        CacheServiceImpl cacheService = prepareDataForTest("TEST-1", 10);
-
-        when(sourceFunctionMock.apply(Mockito.eq("TEST-2"))).thenReturn(100);
+        AbstractCacheService cacheService = prepareDataForTest("TEST-1", 10);
+        AbstractCachedEntity entity = new AbstractCachedEntity(100);
+        when(sourceFunctionMock.apply(Mockito.eq("TEST-2"))).thenReturn(entity);
 
         cacheService.get("TEST-2");
         cacheService.get("TEST-2");
@@ -61,7 +62,7 @@ public class CacheServiceImplTest_Roman {
 
     @Test
     public void handlerKeyExistIsUsedTest() {
-        CacheServiceImpl cacheService = prepareDataForTest("TEST-1", 10);
+        AbstractCacheService cacheService = prepareDataForTest("TEST-1", 10);
 
         cacheService.put("TEST-1", 10);
         cacheService.put("TEST-2", 10);
@@ -71,8 +72,8 @@ public class CacheServiceImplTest_Roman {
     }
 
     @SuppressWarnings("unchecked")
-    private CacheServiceImpl prepareDataForTest(String key, long testValue) {
-        CacheServiceImpl impl = new CacheServiceImpl();
+    private AbstractCacheService prepareDataForTest(String key, long testValue) {
+        AbstractCacheService impl = new AbstractCacheService();
         sourceFunctionMock = mock(Function.class);
         impl.setSourceFunction(sourceFunctionMock);
         handlerMock = mock(Consumer.class);

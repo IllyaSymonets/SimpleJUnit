@@ -5,21 +5,25 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import lombok.Getter;
+import lombok.Setter;
 
-public class CacheServiceImpl {
+@Getter
+@Setter
+public class AbstractCacheService {
 
     Map<String, AbstractCachedEntity> instance = new HashMap<>();
-    private Function<String, Object> sourceFunction = null;
+    private Function<String, AbstractCachedEntity> sourceFunction = null;
     private Consumer<AbstractCachedEntity> handler = null;
 
-    public void setSourceFunction(
-        Function<String, Object> sourceFunction) {
-        this.sourceFunction = sourceFunction;
-    }
-
-    public void setHandler(Consumer<AbstractCachedEntity> handler) {
-        this.handler = handler;
-    }
+//    public void setSourceFunction(
+//        Function<String, AbstractCachedEntity> sourceFunction) {
+//        this.sourceFunction = sourceFunction;
+//    }
+//
+//    public void setHandler(Consumer<AbstractCachedEntity> handler) {
+//        this.handler = handler;
+//    }
 
     public void put(String key, Object value) {
         if (instance.containsKey(key)) {
@@ -30,16 +34,16 @@ public class CacheServiceImpl {
 
     public Object get(String key) {
         if (!instance.containsKey(key)) {
-            Object value = getRealValue(key);
+            AbstractCachedEntity value = getRealValue(key);
             if (Objects.isNull(value)) {
                 throw new RuntimeException("Value was not found!");
             }
-            put(key, value);
+            _put(key, value);
         }
         return instance.get(key).getValue();
     }
 
-    protected Object getRealValue(String key) {
+    protected AbstractCachedEntity getRealValue(String key) {
         return sourceFunction != null ? sourceFunction.apply(key) : null;
     }
 
@@ -53,7 +57,7 @@ public class CacheServiceImpl {
         instance.put(key, value);
     }
 
-    class AbstractCachedEntity{
+    static class AbstractCachedEntity{
         Object value;
 
         AbstractCachedEntity(Object value) {
