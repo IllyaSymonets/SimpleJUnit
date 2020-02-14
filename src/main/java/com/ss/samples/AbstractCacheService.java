@@ -12,18 +12,9 @@ import lombok.Setter;
 @Setter
 public class AbstractCacheService {
 
-    Map<String, AbstractCachedEntity> instance = new HashMap<>();
+    private Map<String, AbstractCachedEntity> instance = new HashMap<>();
     private Function<String, AbstractCachedEntity> sourceFunction = null;
     private Consumer<AbstractCachedEntity> handler = null;
-
-//    public void setSourceFunction(
-//        Function<String, AbstractCachedEntity> sourceFunction) {
-//        this.sourceFunction = sourceFunction;
-//    }
-//
-//    public void setHandler(Consumer<AbstractCachedEntity> handler) {
-//        this.handler = handler;
-//    }
 
     public void put(String key, Object value) {
         if (instance.containsKey(key)) {
@@ -57,16 +48,14 @@ public class AbstractCacheService {
         instance.put(key, value);
     }
 
-    static class AbstractCachedEntity{
+    @Getter
+    static class AbstractCachedEntity {
+
         Object value;
 
         AbstractCachedEntity(Object value) {
             super();
             this.value = value;
-        }
-
-        public Object getValue() {
-            return value;
         }
     }
 }
