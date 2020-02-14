@@ -1,9 +1,11 @@
 package com.ss.samples;
 
+import com.ss.samples.CacheServiceImpl.AbstractCachedEntity;
 import org.junit.Test;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
+import org.mockito.Mockito;
 
 import static java.lang.System.currentTimeMillis;
 import static org.junit.Assert.assertEquals;
@@ -13,7 +15,7 @@ public class CacheServiceImplTest_Irina {
 
     CacheServiceImpl testCache;
     private Function<String, Object> sourceFunctionMock;
-    private Consumer<String> handlerMock;
+    private Consumer<AbstractCachedEntity> handlerMock;
 
     private CacheServiceImpl prepareDataForTest(String key, long testValue) {
         testCache = new CacheServiceImpl();
@@ -75,10 +77,10 @@ public class CacheServiceImplTest_Irina {
         long testValue = currentTimeMillis();
         CacheServiceImpl preparedCache = prepareDataForTest("TEST", testValue);
         long testValue1 = currentTimeMillis();
-        when(sourceFunctionMock.apply("TEST1")).thenReturn(testValue1); //the behaviour for sourceFunction
+        when(sourceFunctionMock.apply("TEST-1")).thenReturn(testValue1); //the behaviour for sourceFunction
         //how to put an instance to sourceFunction?
         preparedCache.get("TEST-1");
-        verify(sourceFunctionMock, times(1)).apply("TEST1");
+        verify(sourceFunctionMock, times(1)).apply("TEST-1");
     }
 
     //when put an instance with the same key to cache
@@ -88,6 +90,6 @@ public class CacheServiceImplTest_Irina {
         CacheServiceImpl preparedCache = prepareDataForTest("TEST", testValue);
         long testValue1 = currentTimeMillis();
         preparedCache.put("TEST", testValue1);
-        verify(handlerMock, times(1)).accept("TEST");
+        verify(handlerMock, times(1)).accept(Mockito.any());
     }
 }

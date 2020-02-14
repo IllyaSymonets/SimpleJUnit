@@ -3,6 +3,7 @@ package com.ss.samples;
 import static java.lang.System.currentTimeMillis;
 import static org.junit.Assert.assertEquals;
 
+import com.ss.samples.CacheServiceImpl.AbstractCachedEntity;
 import java.util.HashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -13,7 +14,7 @@ import org.mockito.Mockito;
 public class CacheServiceImplTest_Illia {
 
     CacheServiceImpl cacheService;
-    Consumer<String> handlerMock;
+    Consumer<AbstractCachedEntity> handlerMock;
     Function<String, Object> sourceFunctionMock;
 
     @Before
@@ -33,7 +34,7 @@ public class CacheServiceImplTest_Illia {
 
         CacheServiceImpl impl = prepareDataForTest("TEST-PUT", testValue);
 
-        assertEquals(testValue, impl.instance.get("TEST-PUT"));
+        assertEquals(testValue, impl.instance.get("TEST-PUT").getValue());
     }
 
     @Test
@@ -54,7 +55,7 @@ public class CacheServiceImplTest_Illia {
         cacheService.put("TEST-PUT", testValue);
         cacheService.put("TEST-PUT", testValue);
 
-        Mockito.verify(handlerMock).accept("TEST-PUT");
+        Mockito.verify(handlerMock).accept(Mockito.any());
     }
 
     @Test(expected = RuntimeException.class)
