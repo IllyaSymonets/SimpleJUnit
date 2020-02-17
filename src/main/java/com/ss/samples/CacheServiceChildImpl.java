@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Setter
+@Getter
 public class CacheServiceChildImpl extends CacheServiceImpl {
 
     private int maxCapacity = 100000;
@@ -14,7 +15,8 @@ public class CacheServiceChildImpl extends CacheServiceImpl {
     private double elementsToDelete = (1 - percentToDelete) * maxCapacity;
 
     @Getter
-    class CachedEntityChild extends AbstractCachedEntity {
+    @Setter
+    static class CachedEntityChild extends AbstractCachedEntity {
 
         int counterOfUsage = 0;
 

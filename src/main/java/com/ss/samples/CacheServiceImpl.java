@@ -89,7 +89,7 @@ public class CacheServiceImpl {
     }
 
     @Getter
-    class AbstractCachedEntity {
+    static class AbstractCachedEntity {
 
         private String key;
         private Object value;
