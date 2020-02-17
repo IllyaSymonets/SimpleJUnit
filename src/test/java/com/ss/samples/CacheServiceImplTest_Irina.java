@@ -11,7 +11,7 @@ import static org.mockito.Mockito.*;
 
 public class CacheServiceImplTest_Irina {
 
-    CacheServiceImpl testCache;
+    private CacheServiceImpl testCache;
     private Function<String, Object> sourceFunctionMock;
     private Consumer<CacheServiceImpl.AbstractCachedEntity> handlerMock;
 

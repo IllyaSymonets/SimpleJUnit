@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class CacheServiceImpl_Irina extends CacheServiceImpl implements GarbageCollector {
-
     private Map<String, CachedEntity> instance = new HashMap<>();
 
     @Override
@@ -22,7 +21,7 @@ public class CacheServiceImpl_Irina extends CacheServiceImpl implements GarbageC
     public void collectGarbageByLeastUsedEntity(Map<String, CachedEntity> instance) {
         this.instance = instance.entrySet().stream().limit(90000)
                 .sorted(Map.Entry.comparingByValue()).                      //how to compare correct? find the way
-        collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     @Override
