@@ -27,12 +27,10 @@ public class CacheServiceImplChild extends CacheServiceImpl {
     private long secondsToLive = 3;
     private int cacheSize = 10;
 
-    private Predicate<Entry<String, AbstractCachedEntityChild>>
-        isContainsEntityToDeleteByCountPredicate = entry ->
+    private Predicate<Entry<String, AbstractCachedEntityChild>> isContainsEntityToDeleteByCountPredicate = entry ->
         entry.getValue().getStats().getCountOfUses() < countOfUses;
 
-    private Predicate<Entry<String, AbstractCachedEntityChild>>
-        isContainsEntityToDeleteByTimePredicate = entry ->
+    private Predicate<Entry<String, AbstractCachedEntityChild>> isContainsEntityToDeleteByTimePredicate = entry ->
         getInactionTime(entry) > secondsToLive;
 
     @Override
