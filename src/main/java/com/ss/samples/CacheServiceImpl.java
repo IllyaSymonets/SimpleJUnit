@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import lombok.Getter;
 
 public class CacheServiceImpl {
 
@@ -78,6 +79,7 @@ public class CacheServiceImpl {
         instance.put(key, value);
     }
 
+    @Getter
     class AbstractCachedEntity {
 
         String key;
