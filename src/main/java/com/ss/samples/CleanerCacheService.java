@@ -1,9 +1,8 @@
 package com.ss.samples;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -34,6 +33,7 @@ public class CleanerCacheService extends AbstractCacheService {
         return super.get(key);
     }
 
+    @VisibleForTesting
     private void clean() {
         cache = cache.entrySet().stream()
             .filter(entity -> entity.getValue().getStatistics().getLastAccessTime()
@@ -43,6 +43,7 @@ public class CleanerCacheService extends AbstractCacheService {
             .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     }
 
+    @VisibleForTesting
     private boolean isFull() {
         return cache.size() >= MAX_CAPACITY;
     }
