@@ -23,7 +23,7 @@ public class AbstractCacheServiceTest_Roman {
         long testValue = System.currentTimeMillis();
         AbstractCachedEntity entity = new AbstractCachedEntity(testValue);
         AbstractCacheService impl = prepareDataForTest("TEST-GET", entity);
-        assertEquals(entity, impl.get("TEST-GET"));
+        assertEquals(entity.getValue(), impl.get("TEST-GET"));
     }
 
     @Test
@@ -31,7 +31,7 @@ public class AbstractCacheServiceTest_Roman {
         long testValue = System.currentTimeMillis();
         AbstractCachedEntity entity = new AbstractCachedEntity(testValue);
         AbstractCacheService impl = prepareDataForTest("TEST-PUT", entity);
-        assertEquals(entity, impl.get("TEST-PUT"));
+        assertEquals(entity.getValue(), impl.get("TEST-PUT"));
     }
 
     @Test(expected = RuntimeException.class)
@@ -71,9 +71,9 @@ public class AbstractCacheServiceTest_Roman {
         AbstractCacheService cacheService = prepareDataForTest("TEST-1",
             new AbstractCachedEntity(10));
 
-        cacheService.put("TEST-1", 10);
-        cacheService.put("TEST-2", 10);
-        cacheService.put("TEST-2", 10);
+        cacheService.put("TEST-1", new AbstractCachedEntity(10));
+        cacheService.put("TEST-2", new AbstractCachedEntity(10));
+        cacheService.put("TEST-2", new AbstractCachedEntity(10));
 
         verify(handlerMock, times(2)).accept(Mockito.any());
     }

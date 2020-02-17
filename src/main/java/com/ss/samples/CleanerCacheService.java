@@ -1,11 +1,12 @@
 package com.ss.samples;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.beans.Visibility;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import lombok.Setter;
 public class CleanerCacheService extends AbstractCacheService {
 
     private Map<String, StatisticsCacheEntity> cache = new HashMap<>(MAX_CAPACITY);
+    private Function<String, StatisticsCacheEntity> sourceFunctionChild = null;
     private static final int MAX_CAPACITY = 100000;
     private static final long TIME_TO_LIVE = 5 * 60;
     private static final long NUMBER_OF_TIMES_USED = 5;
@@ -29,25 +31,38 @@ public class CleanerCacheService extends AbstractCacheService {
 
     @Override
     public Object get(String key) {
+        if (!cache.containsKey(key)) {
+            StatisticsCacheEntity value = getRealValue(key);
+            if (Objects.isNull(value)) {
+                throw new RuntimeException("Value was not found!");
+            }
+            _put(key, value);
+        }
         cache.get(key).getStatistics().updateNumberOfUses();
         cache.get(key).getStatistics().updateTime();
-        return super.get(key);
+        return cache.get(key).getValue();
+    }
+
+    protected StatisticsCacheEntity getRealValue(String key) {
+        return sourceFunctionChild != null ? sourceFunctionChild.apply(key) : null;
     }
 
     private void clean() {
         cache = cache.entrySet().stream()
             .filter(entity -> entity.getValue().getStatistics().getLastAccessTime()
                 .isBefore(Instant.now().minusSeconds(TIME_TO_LIVE)))
-            .filter(entity -> entity.getValue().getStatistics().getNumberOfUses() <
+            .filter(entity -> entity.getValue().getStatistics().getNumberOfUses() >
                 NUMBER_OF_TIMES_USED)
             .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     }
 
-    private boolean isFull() {
+    @VisibleForTesting
+    boolean isFull() {
         return cache.size() == MAX_CAPACITY;
     }
 
     @Getter
+    @Setter
     static class StatisticsCacheEntity extends AbstractCachedEntity {
 
         private Statistics statistics;

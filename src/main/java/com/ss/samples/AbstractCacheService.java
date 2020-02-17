@@ -20,7 +20,7 @@ public class AbstractCacheService {
         if (instance.containsKey(key)) {
             handleKeyExists(key);
         }
-        _put(key, new AbstractCachedEntity(value));
+        _put(key, value);
     }
 
     public Object get(String key) {
