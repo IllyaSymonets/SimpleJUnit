@@ -6,6 +6,8 @@ import lombok.Setter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Getter
+@Setter
 public class CacheServiceImpl_Irina extends CacheServiceImpl implements GarbageCollector {
 
     private Map<String, CachedEntity> cacheEntity = new TreeMap<>();
@@ -14,27 +16,32 @@ public class CacheServiceImpl_Irina extends CacheServiceImpl implements GarbageC
         return cacheEntity;
     }
 
+    private int mapCapacity = 100000;
+    private double minFrequencyOfUse = 0.0001;
+
     @Override
     public void collectGarbageByFrequency(Map<String, CachedEntity> cacheEntity) {
-        this.cacheEntity = cacheEntity.entrySet().stream().filter(entity ->
-                (entity.getValue().getStatisticInfo().getFrequencyOfTouch())
-                        <= Constants.MIN_FREQUENCY_OF_USE).
-                collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        this.cacheEntity = cacheEntity.
+                entrySet().
+                stream().
+                filter(entity -> (entity.getValue().getStatisticInfo().getFrequencyOfTouch()) <= minFrequencyOfUse)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public void collectGarbageByLeastUsedEntity(Map<String, CachedEntity> cacheEntity) {
-        this.cacheEntity = cacheEntity.entrySet().stream()
+        this.cacheEntity = cacheEntity
+                .entrySet()
+                .stream()
                 .sorted(Comparator.comparingDouble(entry -> entry.getValue().getStatisticInfo().getFrequencyOfTouch()))
-                        .limit(2)
+                .limit((int) (0.9 * mapCapacity))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) ->
-                        newValue, TreeMap::new))
-        ;
+                        newValue, TreeMap::new));
     }
 
     @Override
     public void _put(String key, AbstractCachedEntity value) {
         if (isFull(cacheEntity)) {
-            collectGarbageByFrequency(cacheEntity);
+            collectGarbageByLeastUsedEntity(cacheEntity);
         }
         cacheEntity.put(key, new CachedEntity(value));
     }
@@ -54,7 +61,7 @@ public class CacheServiceImpl_Irina extends CacheServiceImpl implements GarbageC
     }
 
     private boolean isFull(Map<String, CachedEntity> instance) {
-        return instance.size() >= Constants.MAP_CAPACITY;
+        return instance.size() >= mapCapacity;
     }
 
     @Setter
