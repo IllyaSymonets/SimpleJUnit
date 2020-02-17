@@ -26,14 +26,14 @@ public class CacheServiceImplChild extends CacheServiceImpl {
     private int countOfUses = 10;
     private long secondsToLive = 3;
     private int cacheSize = 10;
-    Predicate<Entry<String, AbstractCachedEntityChild>> isContainsEntityToDeleteByCountPredicate =
-        entry ->
-            entry.getValue().getStats().getCountOfUses() < countOfUses;
-    Predicate<Entry<String, AbstractCachedEntityChild>> isContainsEntityToDeleteByTimePredicate =
-        entry ->
-            (System.currentTimeMillis() - entry.getValue().getStats()
-                .getTimeOfLastAccess()) / 1000.0
-                > secondsToLive;
+
+    private Predicate<Entry<String, AbstractCachedEntityChild>>
+        isContainsEntityToDeleteByCountPredicate = entry ->
+        entry.getValue().getStats().getCountOfUses() < countOfUses;
+
+    private Predicate<Entry<String, AbstractCachedEntityChild>>
+        isContainsEntityToDeleteByTimePredicate = entry ->
+        getInactionTime(entry) > secondsToLive;
 
     @Override
     protected void _put(String key, Object value) {
@@ -85,5 +85,10 @@ public class CacheServiceImplChild extends CacheServiceImpl {
             filter(isContainsEntityToDeleteByCountPredicate.negate())
             .collect(
                 Collectors.toMap(Entry::getKey, Entry::getValue));
+    }
+
+    private double getInactionTime(Entry<String, AbstractCachedEntityChild> entry) {
+        return (System.currentTimeMillis() - entry.getValue()
+            .getStats().getTimeOfLastAccess()) / 1000.0;
     }
 }

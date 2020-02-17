@@ -12,9 +12,9 @@ import org.mockito.Mockito;
 
 public class CacheServiceImplTest_Illia {
 
-    CacheServiceImpl cacheService;
-    Consumer<AbstractCachedEntity> handlerMock;
-    Function<String, Object> sourceFunctionMock;
+    private CacheServiceImpl cacheService;
+    private Consumer<AbstractCachedEntity> handlerMock;
+    private Function<String, Object> sourceFunctionMock;
 
     @Before
     public void before() {
@@ -26,23 +26,13 @@ public class CacheServiceImplTest_Illia {
     }
 
     @Test
-    public void putHappyPath() {
+    public void putAndGetHappyPath() {
 
         long testValue = currentTimeMillis();
 
         cacheService.put("TEST-PUT", testValue);
 
         assertEquals(testValue, cacheService.get("TEST-PUT"));
-    }
-
-    @Test
-    public void getHappyPath() {
-
-        long testValue = currentTimeMillis();
-
-        CacheServiceImpl impl = prepareDataForTest("TEST-GET", testValue);
-
-        assertEquals(testValue, impl.get("TEST-GET"));
     }
 
     @Test
@@ -72,12 +62,5 @@ public class CacheServiceImplTest_Illia {
 
         assertEquals(testValue, cacheService.get("TEST-GET"));
 
-    }
-
-    private CacheServiceImpl prepareDataForTest(String key, long testValue) {
-
-        CacheServiceImpl impl = new CacheServiceImpl();
-        impl.put(key, testValue);
-        return impl;
     }
 }
