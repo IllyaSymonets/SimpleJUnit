@@ -11,14 +11,14 @@ import static java.lang.System.currentTimeMillis;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
-public class CacheServiceImplTest_Irina {
+public class CacheServiceImplTest {
 
-    private CacheServiceImpl testCache;
     private Function<String, Object> sourceFunctionMock;
     private Consumer<AbstractCachedEntity> handlerMock;
 
+    @SuppressWarnings("unchecked")
     private CacheServiceImpl prepareDataForTest(String key, long testValue) {
-        testCache = new CacheServiceImpl();
+        CacheServiceImpl testCache = new CacheServiceImpl();
         sourceFunctionMock = mock(Function.class);
         handlerMock = mock(Consumer.class);
         testCache.setHandler(handlerMock);
