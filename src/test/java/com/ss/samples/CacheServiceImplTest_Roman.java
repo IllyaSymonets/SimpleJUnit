@@ -72,7 +72,6 @@ public class CacheServiceImplTest_Roman {
 
     @SuppressWarnings("unchecked")
     private CacheServiceImpl prepareDataForTest(String key, long testValue) {
-        //can be declared with Mocks
         CacheServiceImpl impl = new CacheServiceImpl();
         sourceFunctionMock = mock(Function.class);
         impl.setSourceFunction(sourceFunctionMock);
