@@ -5,9 +5,11 @@ import static org.mockito.Mockito.when;
 
 import com.ss.samples.CleanerCacheService.StatisticsCacheEntity;
 import java.time.Instant;
+import java.util.function.Function;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class CleanerCacheServiceTest_Roman {
 
@@ -74,7 +76,7 @@ public class CleanerCacheServiceTest_Roman {
         Assert.assertEquals("TEST-VALUE", cacheService.get("TEST"));
     }
 
-    @Test (expected = RuntimeException.class)
+    @Test(expected = RuntimeException.class)
     public void cleanByLastAccessTimeFilterTest() {
         StatisticsCacheEntity statisticsCacheEntity = new StatisticsCacheEntity("TEST-VALUE");
         statisticsCacheEntity.setStatistics(statisticsMock);
@@ -89,5 +91,20 @@ public class CleanerCacheServiceTest_Roman {
         }
 
         Assert.assertEquals("TEST-VALUE", cacheService.get("TEST"));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void putValueInGetMethodIfItNotExist() {
+        StatisticsCacheEntity statisticsCacheEntity = new StatisticsCacheEntity("TEST-VALUE");
+
+        Function<String, StatisticsCacheEntity> sourceFunctionMock = mock(Function.class);
+        cacheService.setSourceFunctionChild(sourceFunctionMock);
+
+        when(sourceFunctionMock.apply(Mockito.eq("TEST"))).thenReturn(statisticsCacheEntity);
+
+        cacheService.get("TEST");
+        Assert.assertEquals(statisticsCacheEntity,
+            cacheService.get("TEST"));
     }
 }
