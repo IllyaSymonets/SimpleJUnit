@@ -3,10 +3,13 @@ package com.ss.samples;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
 import lombok.Getter;
+import lombok.Setter;
 
 public class CacheServiceChildImpl extends CacheServiceImpl {
 
+    @Setter
     int maxCapacity = 100000;
     double percentToDelete = 0.15;
     double elementsToDelete = (1 - percentToDelete) * maxCapacity;
