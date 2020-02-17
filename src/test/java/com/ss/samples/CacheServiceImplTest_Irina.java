@@ -47,7 +47,7 @@ public class CacheServiceImplTest_Irina {
         CacheServiceImpl preparedCache = prepareDataForTest("TEST", testValue);
 
         long testValue1 = currentTimeMillis();
-        when(sourceFunctionMock.apply("TEST1")).thenReturn(testValue1); //the behaviour for sourceFunction
+        when(sourceFunctionMock.apply("TEST1")).thenReturn(testValue1);
 
         preparedCache.get("TEST1");
         assertEquals(testValue1, preparedCache.get("TEST1"));
@@ -74,7 +74,7 @@ public class CacheServiceImplTest_Irina {
         long testValue = currentTimeMillis();
         CacheServiceImpl preparedCache = prepareDataForTest("TEST", testValue);
         long testValue1 = currentTimeMillis();
-        when(sourceFunctionMock.apply("TEST1")).thenReturn(testValue1); //the behaviour for sourceFunction
+        when(sourceFunctionMock.apply("TEST1")).thenReturn(testValue1);
         preparedCache.get("TEST1");
         verify(sourceFunctionMock, times(1)).apply("TEST1");
     }
