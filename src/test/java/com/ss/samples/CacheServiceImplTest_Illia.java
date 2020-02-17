@@ -4,7 +4,6 @@ import static java.lang.System.currentTimeMillis;
 import static org.junit.Assert.assertEquals;
 
 import com.ss.samples.CacheServiceImpl.AbstractCachedEntity;
-import java.util.HashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.junit.Before;
@@ -24,7 +23,6 @@ public class CacheServiceImplTest_Illia {
         sourceFunctionMock = Mockito.mock(Function.class);
         cacheService.setSourceFunction(sourceFunctionMock);
         cacheService.setHandler(handlerMock);
-        cacheService.instance = new HashMap<>();
     }
 
     @Test
@@ -32,9 +30,9 @@ public class CacheServiceImplTest_Illia {
 
         long testValue = currentTimeMillis();
 
-        CacheServiceImpl impl = prepareDataForTest("TEST-PUT", testValue);
+        cacheService.put("TEST-PUT", testValue);
 
-        assertEquals(testValue, impl.instance.get("TEST-PUT").getValue());
+        assertEquals(testValue, cacheService.get("TEST-PUT"));
     }
 
     @Test

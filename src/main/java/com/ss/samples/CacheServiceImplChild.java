@@ -3,6 +3,7 @@ package com.ss.samples;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +26,14 @@ public class CacheServiceImplChild extends CacheServiceImpl {
     private int countOfUses = 10;
     private long secondsToLive = 3;
     private int cacheSize = 10;
+    Predicate<Entry<String, AbstractCachedEntityChild>> isContainsEntityToDeleteByCountPredicate =
+        entry ->
+            entry.getValue().getStats().getCountOfUses() < countOfUses;
+    Predicate<Entry<String, AbstractCachedEntityChild>> isContainsEntityToDeleteByTimePredicate =
+        entry ->
+            (System.currentTimeMillis() - entry.getValue().getStats()
+                .getTimeOfLastAccess()) / 1000.0
+                > secondsToLive;
 
     @Override
     protected void _put(String key, Object value) {
@@ -52,16 +61,12 @@ public class CacheServiceImplChild extends CacheServiceImpl {
 
     private boolean isCacheContainsEntityToDeleteByCountOfUses() {
         return instance.entrySet().stream()
-            .anyMatch(entry ->
-                entry.getValue().getStats().getCountOfUses() < countOfUses);
+            .anyMatch(isContainsEntityToDeleteByCountPredicate);
     }
 
     private boolean isCacheContainsEntityToDeleteByTime() {
         return instance.entrySet().stream()
-            .anyMatch(entry ->
-                (System.currentTimeMillis() -
-                    entry.getValue().getStats().getTimeOfLastAccess()) / 1000.0
-                    > secondsToLive);
+            .anyMatch(isContainsEntityToDeleteByTimePredicate);
     }
 
     private boolean isFull() {
@@ -70,17 +75,14 @@ public class CacheServiceImplChild extends CacheServiceImpl {
 
     private void filterByTime() {
         instance = instance.entrySet().stream().
-            filter(cacheEntry -> ((System.currentTimeMillis())
-                - cacheEntry.getValue().getStats().getTimeOfLastAccess()) / 1000.0
-                < secondsToLive)
+            filter(isContainsEntityToDeleteByTimePredicate.negate())
             .collect(
                 Collectors.toMap(Entry::getKey, Entry::getValue));
     }
 
     private void filterByCount() {
         instance = instance.entrySet().stream().
-            filter(entry ->
-                entry.getValue().getStats().getCountOfUses() >= countOfUses)
+            filter(isContainsEntityToDeleteByCountPredicate.negate())
             .collect(
                 Collectors.toMap(Entry::getKey, Entry::getValue));
     }
