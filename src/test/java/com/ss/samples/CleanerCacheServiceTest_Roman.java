@@ -1,7 +1,6 @@
 package com.ss.samples;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import com.ss.samples.CleanerCacheService.StatisticsCacheEntity;
@@ -15,8 +14,8 @@ public class CleanerCacheServiceTest_Roman {
 
     private static final int MAX_CAPACITY = 100000;
     private CleanerCacheService cacheService;
-    private CleanerCacheService cacheServiceMock;
     private Map<String, StatisticsCacheEntity> cacheMock;
+    private Statistics statisticsMock;
 
     @SuppressWarnings("unchecked")
     @Before
@@ -24,41 +23,42 @@ public class CleanerCacheServiceTest_Roman {
         cacheService = new CleanerCacheService();
         cacheMock = mock(HashMap.class);
         cacheService.setCache(cacheMock);
-        cacheServiceMock = mock(CleanerCacheService.class);
+        statisticsMock = mock(Statistics.class);
     }
 
     @Test
-    public void sizeTestWithoutCleanTest() {
-        for (int i = 0; i < 90_000; i++) {
-            cacheService.put(String.valueOf(i), i);
-        }
-
-        int expected = 90_000;
-
-        Assert.assertEquals(expected, cacheService.getCache().size());
+    public void happyPathTest() {
+        cacheService.put("TEST-GET","GET");
+        Assert.assertEquals("GET", cacheService.get("TEST-GET"));
     }
 
     @Test
-    public void sizeTestAfterCleanTest() {
-        for (int i = 0; i < 111_111; i++) {
-            cacheService.put(String.valueOf(i), i);
-        }
-
-        int expected = 11_111;
-
-        Assert.assertEquals(expected, cacheService.getCache().size());
-    }
-
-    @Test
-    public void cleanTest() {
-        for (int i = 0; i < 1000; i++) {
+    public void cleanMethodInvoked() {
+        for (int i = 0; i < 10000; i++) {
             cacheService.put(String.valueOf(i), i);
         }
 
         when(cacheMock.size()).thenReturn(MAX_CAPACITY);
         cacheService.put(String.valueOf(1), 1);
-        int expected = 1;
+        int expectedSize = 1;
 
-        Assert.assertEquals(expected, cacheService.getCache().size());
+        Assert.assertEquals(expectedSize, cacheService.getCache().size());
+    }
+
+    @Test
+    public void cleanOnlyByNumberOfUsesTest() {
+        for (int i = 0; i < 10000; i++) {
+            cacheService.put(String.valueOf(i), i);
+        }
+
+        for (int i = 0; i < 10; i++) {
+            cacheService.get(String.valueOf(100));
+        }
+        when(statisticsMock.getNumberOfUses()).thenReturn(10L);
+        when(cacheMock.size()).thenReturn(MAX_CAPACITY);
+        cacheService.put(String.valueOf(1), 1);
+        int expectedSize = 2;
+
+        Assert.assertEquals(expectedSize, cacheService.getCache().size());
     }
 }

@@ -1,6 +1,7 @@
 package com.ss.samples;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.beans.Visibility;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +17,7 @@ public class CleanerCacheService extends AbstractCacheService {
     private Map<String, StatisticsCacheEntity> cache = new HashMap<>(MAX_CAPACITY);
     private static final int MAX_CAPACITY = 100000;
     private static final long TIME_TO_LIVE = 5 * 60;
-    private static final long NUMBER_OF_TIMES_USED = 10;
+    private static final long NUMBER_OF_TIMES_USED = 5;
 
     @Override
     protected void _put(String key, Object value) {
@@ -33,7 +34,6 @@ public class CleanerCacheService extends AbstractCacheService {
         return super.get(key);
     }
 
-    @VisibleForTesting
     private void clean() {
         cache = cache.entrySet().stream()
             .filter(entity -> entity.getValue().getStatistics().getLastAccessTime()
@@ -43,9 +43,8 @@ public class CleanerCacheService extends AbstractCacheService {
             .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     }
 
-    @VisibleForTesting
     private boolean isFull() {
-        return cache.size() >= MAX_CAPACITY;
+        return cache.size() == MAX_CAPACITY;
     }
 
     @Getter
