@@ -12,7 +12,7 @@ import lombok.Getter;
 
 public class CacheServiceImpl {
 
-    Map<String, AbstractCachedEntity> instance = new HashMap<>();
+    private Map<String, AbstractCachedEntity> instance = new HashMap<>();
     private Function<String, Object> sourceFunction = null;
     private Consumer<AbstractCachedEntity> handler = null;
 

@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import lombok.Getter;
+import lombok.Setter;
 
+@Setter
 public class CacheServiceChildImpl extends CacheServiceImpl {
 
-    int maxCapacity = 100000;
-    double percentToDelete = 0.15;
-    double elementsToDelete = (1 - percentToDelete) * maxCapacity;
+    private int maxCapacity = 100000;
+    private double percentToDelete = 0.15;
+    private double elementsToDelete = (1 - percentToDelete) * maxCapacity;
 
     @Getter
     class CachedEntityChild extends AbstractCachedEntity {
@@ -37,21 +39,32 @@ public class CacheServiceChildImpl extends CacheServiceImpl {
     @Override
     protected void _put(String key, AbstractCachedEntity value) {
 
-        if (size() < maxCapacity) {
-
-            List<AbstractCachedEntity> items = getActualValues();
-
-            List<CachedEntityChild> children = new ArrayList<>();
-
-            for (AbstractCachedEntity entity : items) {
-                children.add((CachedEntityChild) entity);
-            }
+        if (size() >= maxCapacity) {
+            List<CachedEntityChild> children = convertElements(getActualValues());
             children.sort(Comparator.comparingInt(CachedEntityChild::getCounterOfUsage));
-            for (int i = 0; i < elementsToDelete; i++) {
-                remove(children.get(0).getKey());
-                children.remove(0);
-            }
+            cleanCache(children);
         }
         super._put(key, value);
+    }
+
+    private List<CachedEntityChild> convertElements(List<AbstractCachedEntity> items) {
+
+        List<CachedEntityChild> children = new ArrayList<>();
+        for (AbstractCachedEntity entity : items) {
+            children.add((CachedEntityChild) entity);
+        }
+        return children;
+    }
+
+    private void cleanCache(List<CachedEntityChild> children) {
+
+        for (int i = 0; i < elementsToDelete; i++) {
+            remove(children.get(0).getKey());
+            children.remove(0);
+        }
+
+        for (CachedEntityChild entity : children) {
+            entity.counterOfUsage = 0;
+        }
     }
 }
