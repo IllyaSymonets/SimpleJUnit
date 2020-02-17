@@ -1,8 +1,12 @@
 package com.ss.samples;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -25,7 +29,23 @@ public class CacheServiceImpl {
         if (instance.containsKey(key)) {
             handleKeyExists(key);
         }
-        _put(key, new AbstractCachedEntity(value));
+        _put(key, createEntityInstance(key, value));
+    }
+
+    protected final int size() {
+        return instance.size();
+    }
+
+    protected final void remove(String key) {
+        instance.remove(key);
+    }
+
+    protected List<AbstractCachedEntity> getActualValues() {
+        return new ArrayList<>(instance.values());
+    }
+
+    protected AbstractCachedEntity createEntityInstance(String key, Object value) {
+        return new AbstractCachedEntity(key, value);
     }
 
     public Object get(String key) {
@@ -36,7 +56,13 @@ public class CacheServiceImpl {
             }
             put(key, value);
         }
-        return instance.get(key).getValue();
+        AbstractCachedEntity entity = instance.get(key);
+        updateStats(entity);
+        return entity.getValue();
+    }
+
+    protected void updateStats(AbstractCachedEntity entity) {
+
     }
 
     protected Object getRealValue(String key) {
@@ -54,11 +80,18 @@ public class CacheServiceImpl {
     }
 
     class AbstractCachedEntity{
-        Object value;
 
-        AbstractCachedEntity(Object value) {
+        final String key;
+        final Object value;
+
+        AbstractCachedEntity(String key, Object value) {
             super();
+            this.key = key;
             this.value = value;
+        }
+
+        public String getKey(){
+            return key;
         }
 
         public Object getValue() {
