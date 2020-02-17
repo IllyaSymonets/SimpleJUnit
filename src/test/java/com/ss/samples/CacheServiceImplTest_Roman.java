@@ -38,7 +38,7 @@ public class CacheServiceImplTest_Roman {
         cacheService.get("TEST_2");
     }
 
-    //GIVEN, WHEN, THEN spaces
+
     @Test
     public void getRealValueIsUsedTest() {
         CacheServiceImpl cacheService = prepareDataForTest("TEST-1", 10);
@@ -47,7 +47,6 @@ public class CacheServiceImplTest_Roman {
         Assert.assertEquals(cacheService.get("TEST-2"), 100);
     }
 
-    //no need test
     @Test
     public void getRealValueIsUsedOnlyOnceTest() {
         CacheServiceImpl cacheService = prepareDataForTest("TEST-1", 10);
@@ -60,7 +59,6 @@ public class CacheServiceImplTest_Roman {
         verify(sourceFunctionMock, times(1)).apply("TEST-2");
     }
 
-    //no need TEST-2 flow
     @Test
     public void handlerKeyExistIsUsedTest() {
         CacheServiceImpl cacheService = prepareDataForTest("TEST-1", 10);
@@ -72,9 +70,6 @@ public class CacheServiceImplTest_Roman {
         verify(handlerMock, times(2)).accept(Mockito.any());
     }
 
-    /*can be before method @Before
-    no need to declare each test
-     */
     @SuppressWarnings("unchecked")
     private CacheServiceImpl prepareDataForTest(String key, long testValue) {
         //can be declared with Mocks
