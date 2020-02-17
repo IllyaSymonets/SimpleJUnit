@@ -1,13 +1,16 @@
 package com.ss.samples;
 
+import lombok.Getter;
+
 import java.time.Duration;
 import java.time.Instant;
 
+@Getter
 public class StatisticInfo implements Comparable<StatisticInfo> {
 
     private Instant startTime;
     private int numberOfTouch;
-    private float frequencyOfTouch;
+    private double frequencyOfTouch;
 
     public StatisticInfo() {
         startTime = Instant.now();
@@ -15,7 +18,7 @@ public class StatisticInfo implements Comparable<StatisticInfo> {
         frequencyOfTouch = 1;
     }
 
-    public float getFrequencyOfTouch() {
+    public double getFrequencyOfTouch() {
         return frequencyOfTouch;
     }
 

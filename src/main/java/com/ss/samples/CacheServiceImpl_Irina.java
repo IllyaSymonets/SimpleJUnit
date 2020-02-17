@@ -3,51 +3,52 @@ package com.ss.samples;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CacheServiceImpl_Irina extends CacheServiceImpl implements GarbageCollector {
 
-    private Map<String, CachedEntity> instance = new HashMap<>();
+    private Map<String, CachedEntity> cacheEntity = new TreeMap<>();
 
-    public Map<String, CachedEntity> getInstance() {
-        return instance;
+    public Map<String, CachedEntity> getCacheEntity() {
+        return cacheEntity;
     }
 
     @Override
-    public void collectGarbageByFrequency(Map<String, CachedEntity> instance) {
-        this.instance = instance.entrySet().stream().filter(entity ->
+    public void collectGarbageByFrequency(Map<String, CachedEntity> cacheEntity) {
+        this.cacheEntity = cacheEntity.entrySet().stream().filter(entity ->
                 (entity.getValue().getStatisticInfo().getFrequencyOfTouch())
                         <= Constants.MIN_FREQUENCY_OF_USE).
                 collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    public void collectGarbageByLeastUsedEntity(Map<String, CachedEntity> instance) {
-        this.instance = instance.entrySet().stream().limit(90000)
-                .sorted(Map.Entry.comparingByValue()).                      //how to compare correct? find the way
-                collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    public void collectGarbageByLeastUsedEntity(Map<String, CachedEntity> cacheEntity) {
+        this.cacheEntity = cacheEntity.entrySet().stream()
+                .sorted(Comparator.comparingDouble(entry -> entry.getValue().getStatisticInfo().getFrequencyOfTouch()))
+                        .limit(2)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) ->
+                        newValue, TreeMap::new))
+        ;
     }
 
     @Override
     public void _put(String key, AbstractCachedEntity value) {
-        if (isFull(instance)) {
-            collectGarbageByFrequency(instance);
+        if (isFull(cacheEntity)) {
+            collectGarbageByFrequency(cacheEntity);
         }
-        instance.put(key, new CachedEntity(value));
+        cacheEntity.put(key, new CachedEntity(value));
     }
 
     @Override
     public Object get(String key) {
-        if (!instance.containsKey(key)) {
+        if (!cacheEntity.containsKey(key)) {
             Object value = getRealValue(key);
             if (Objects.isNull(value)) {
                 throw new RuntimeException("Value was not found!");
             }
             put(key, value);
         }
-        CachedEntity cachedEntity = instance.get(key);
+        CachedEntity cachedEntity = cacheEntity.get(key);
         cachedEntity.statisticInfo.incrementTheStatistic();
         return cachedEntity.getValue();
     }
