@@ -1,49 +1,60 @@
 package com.ss.samples;
 
 import java.time.Instant;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class CleanerCacheService extends AbstractCacheService {
 
-    private static final long MAX_CAPACITY = 100000;
-    private static final long TIME_TO_LIVE = 60 * 5;
+    private Map<String, StatisticsCacheEntity> cache = new HashMap<>(MAX_CAPACITY);
+    private static final int MAX_CAPACITY = 100000;
+    private static final long TIME_TO_LIVE = 5 * 60;
     private static final long NUMBER_OF_TIMES_USED = 10;
 
     @Override
-    protected void _put(String key, AbstractCachedEntity value) {
+    protected void _put(String key, Object value) {
         if (isFull()) {
-           super.setInstance(clean(super.getInstance()));
+            clean();
         }
-
-        long totalApplying = value.getStatistics().getTotalApplying();
-        totalApplying++;
-        value.getStatistics().setTotalApplying(totalApplying);
-
-        super._put(key, value);
+        cache.put(key, new StatisticsCacheEntity(value));
     }
 
-    private Map<String, AbstractCachedEntity> clean(Map<String, AbstractCachedEntity> instance) {
+    @Override
+    public Object get(String key) {
+        cache.get(key).getStatistics().updateNumberOfUses();
+        cache.get(key).getStatistics().updateTime();
+        return super.get(key);
+    }
 
-        return instance.entrySet().stream()
-            .filter(entity -> entity.getValue().getStatistics().getCreationTime()
-                .isAfter(Instant.now().plusSeconds(TIME_TO_LIVE)))
-            .filter(entity -> entity.getValue().getStatistics().getTotalApplying() <
+    private void clean() {
+        cache = cache.entrySet().stream()
+            .filter(entity -> entity.getValue().getStatistics().getLastAccessTime()
+                .isBefore(Instant.now().minusSeconds(TIME_TO_LIVE)))
+            .filter(entity -> entity.getValue().getStatistics().getNumberOfUses() <
                 NUMBER_OF_TIMES_USED)
             .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     }
 
     private boolean isFull() {
-        return super.getInstance().size() == MAX_CAPACITY;
+        return cache.size() >= MAX_CAPACITY;
     }
 
-     static class StatisticsCacheEntity extends AbstractCachedEntity{
-        Statistics statistics;
+    @Getter
+    static class StatisticsCacheEntity extends AbstractCachedEntity {
 
-         public StatisticsCacheEntity(Object value) {
-             super(value);
-             this.statistics = new Statistics();
-         }
-     }
+        private Statistics statistics;
+
+        public StatisticsCacheEntity(Object value) {
+            super(value);
+            this.statistics = new Statistics();
+        }
+    }
 }

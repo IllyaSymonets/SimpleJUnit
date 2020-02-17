@@ -14,7 +14,7 @@ public class AbstractCacheService {
 
     private Map<String, AbstractCachedEntity> instance = new HashMap<>();
     private Function<String, AbstractCachedEntity> sourceFunction = null;
-    private Consumer<AbstractCachedEntity> handler = null;
+    private Consumer<Object> handler = null;
 
     public void put(String key, Object value) {
         if (instance.containsKey(key)) {
@@ -44,14 +44,14 @@ public class AbstractCacheService {
         }
     }
 
-    protected void _put(String key, AbstractCachedEntity value) {
-        instance.put(key, value);
+    protected void _put(String key, Object value) {
+        instance.put(key, (AbstractCachedEntity) value);
     }
 
     @Getter
     static class AbstractCachedEntity {
 
-        Object value;
+        private Object value;
 
         AbstractCachedEntity(Object value) {
             super();
