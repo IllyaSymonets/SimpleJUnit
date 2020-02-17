@@ -14,17 +14,31 @@ public class CacheServiceChildImpl extends CacheServiceImpl {
     @Getter
     class CachedEntityChild extends AbstractCachedEntity {
 
-        int counterOfUsage;
+        int counterOfUsage = 0;
 
-        public CachedEntityChild(String key, Object value, int counterOfUsage) {
+        public CachedEntityChild(String key, Object value) {
             super(key, value);
-            this.counterOfUsage = counterOfUsage;
         }
     }
 
     @Override
+    protected AbstractCachedEntity newEntity(String key, Object value) {
+
+        return new CachedEntityChild(key, value);
+    }
+
+    @Override
+    protected void updateStatistic(AbstractCachedEntity entity) {
+
+        CachedEntityChild cachedEntity = (CachedEntityChild) entity;
+        cachedEntity.counterOfUsage++;
+    }
+
+    @Override
     protected void _put(String key, AbstractCachedEntity value) {
+
         if (size() < maxCapacity) {
+
             List<AbstractCachedEntity> items = getActualValues();
 
             List<CachedEntityChild> children = new ArrayList<>();

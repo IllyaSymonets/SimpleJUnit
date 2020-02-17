@@ -49,11 +49,11 @@ public class CacheServiceImpl {
             }
             put(key, value);
         }
-        updateStatistic();
+        updateStatistic(instance.get(key));
         return instance.get(key).getValue();
     }
 
-    protected void updateStatistic() {
+    protected void updateStatistic(AbstractCachedEntity entity) {
 
     }
 
@@ -67,7 +67,7 @@ public class CacheServiceImpl {
         instance.remove(key);
     }
 
-    protected List<AbstractCachedEntity> getActualValues() {
+    protected final List<AbstractCachedEntity> getActualValues() {
 
         return new ArrayList<>(instance.values());
     }
