@@ -1,12 +1,12 @@
 package com.ss.samples;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.mock;
 
@@ -18,6 +18,7 @@ public class CacheServiceImplChildTest_Irina {
     private CacheServiceImpl_Irina.CachedEntity entityMock;
     private StatisticInfo infoMock;
 
+    @Before
     private CacheServiceImpl prepareDataForTest() {
         testCache = new CacheServiceImpl_Irina();
         sourceFunctionMock = mock(Function.class);
@@ -26,12 +27,14 @@ public class CacheServiceImplChildTest_Irina {
         infoMock = mock(StatisticInfo.class);
         testCache.setHandler(handlerMock);
         testCache.setSourceFunction(sourceFunctionMock);
-        testCache.instance = new HashMap<>(4);
+        testCache.instance = new HashMap<>(2);
         return testCache;
     }
 
     @Test
     public void collectGarbageByFrequencyTest() {
+        testCache.instance.put("1", entityMock);
+        testCache.instance.put("2", entityMock);
 
     }
 

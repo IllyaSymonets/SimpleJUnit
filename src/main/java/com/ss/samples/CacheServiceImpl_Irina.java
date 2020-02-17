@@ -1,5 +1,6 @@
 package com.ss.samples;
 
+import lombok.Getter;
 import lombok.Setter;
 
 import java.util.HashMap;
@@ -8,7 +9,12 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class CacheServiceImpl_Irina extends CacheServiceImpl implements GarbageCollector {
+
     private Map<String, CachedEntity> instance = new HashMap<>();
+
+    public Map<String, CachedEntity> getInstance() {
+        return instance;
+    }
 
     @Override
     public void collectGarbageByFrequency(Map<String, CachedEntity> instance) {
