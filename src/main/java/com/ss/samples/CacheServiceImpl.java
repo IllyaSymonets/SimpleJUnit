@@ -1,6 +1,8 @@
 package com.ss.samples;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -25,7 +27,11 @@ public class CacheServiceImpl {
         if (instance.containsKey(key)) {
             handleKeyExists(key);
         }
-        _put(key, new AbstractCachedEntity(value));
+        _put(key, newEntity(key, value));
+    }
+
+    protected AbstractCachedEntity newEntity(String key, Object value) {
+        return new AbstractCachedEntity(key, value);
     }
 
     public Object get(String key) {
@@ -36,7 +42,26 @@ public class CacheServiceImpl {
             }
             put(key, value);
         }
+        updateStatistic();
         return instance.get(key).getValue();
+    }
+
+    protected void updateStatistic() {
+
+    }
+
+    protected final int size() {
+
+        return instance.size();
+    }
+
+    protected final void remove(String key) {
+
+        instance.remove(key);
+    }
+
+    protected List<AbstractCachedEntity> getActualValues() {
+        return new ArrayList<>(instance.values());
     }
 
     protected Object getRealValue(String key) {
@@ -53,10 +78,12 @@ public class CacheServiceImpl {
         instance.put(key, value);
     }
 
-    class AbstractCachedEntity{
+    class AbstractCachedEntity {
+
+        String key;
         Object value;
 
-        AbstractCachedEntity(Object value) {
+        AbstractCachedEntity(String key, Object value) {
             super();
             this.value = value;
         }
