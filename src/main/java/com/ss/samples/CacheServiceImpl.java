@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import lombok.Getter;
 
+
 public class CacheServiceImpl {
 
     Map<String, AbstractCachedEntity> instance = new HashMap<>();
@@ -17,14 +18,17 @@ public class CacheServiceImpl {
 
     public void setSourceFunction(
         Function<String, Object> sourceFunction) {
+
         this.sourceFunction = sourceFunction;
     }
 
     public void setHandler(Consumer<AbstractCachedEntity> handler) {
+
         this.handler = handler;
     }
 
     public void put(String key, Object value) {
+
         if (instance.containsKey(key)) {
             handleKeyExists(key);
         }
@@ -32,10 +36,12 @@ public class CacheServiceImpl {
     }
 
     protected AbstractCachedEntity newEntity(String key, Object value) {
+
         return new AbstractCachedEntity(key, value);
     }
 
     public Object get(String key) {
+
         if (!instance.containsKey(key)) {
             Object value = getRealValue(key);
             if (Objects.isNull(value)) {
@@ -62,14 +68,17 @@ public class CacheServiceImpl {
     }
 
     protected List<AbstractCachedEntity> getActualValues() {
+
         return new ArrayList<>(instance.values());
     }
 
     protected Object getRealValue(String key) {
+
         return sourceFunction != null ? sourceFunction.apply(key) : null;
     }
 
     protected void handleKeyExists(String key) {
+
         if (Objects.nonNull(handler)) {
             handler.accept(instance.get(key));
         }
@@ -82,8 +91,8 @@ public class CacheServiceImpl {
     @Getter
     class AbstractCachedEntity {
 
-        String key;
-        Object value;
+        private String key;
+        private Object value;
 
         AbstractCachedEntity(String key, Object value) {
             super();
