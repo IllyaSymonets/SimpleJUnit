@@ -11,5 +11,4 @@ public class CacheServiceChildImplTest {
         testCache = new CacheServiceChildImpl();
         testCache.setMaxCapacity(10);
     }
-
 }
