@@ -35,7 +35,7 @@ public class CacheServiceChildImplTest {
     }
 
     @Test
-    public void updateStatistic() throws NoSuchFieldException {
+    public void updateStatistic() {
         testCacheSpy.put("TEST-GET", new Object());
         testCacheSpy.get("TEST-GET");
         Mockito.verify(testCacheSpy).updateStatistic(Mockito.any(
