@@ -6,13 +6,16 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
 @Getter
 public class CacheServiceChildImpl extends CacheServiceImpl {
 
     private int maxCapacity = 100000;
     private double percentToDelete = 0.15;
-    private double elementsToDelete = (1 - percentToDelete) * maxCapacity;
+    private double elementsToDelete = percentToDelete * maxCapacity;
+
+    public void setMaxCapacity(int maxCapacity) {
+        this.maxCapacity = maxCapacity;
+    }
 
     @Getter
     @Setter

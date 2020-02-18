@@ -17,7 +17,6 @@ public class CacheServiceChildImplTest {
         testCache.setMaxCapacity(10);
     }
 
-
     @Test
     public void counterWorksCorrect() {
     }
