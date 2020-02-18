@@ -2,6 +2,8 @@ package com.ss.samples;
 
 import static org.junit.Assert.assertEquals;
 
+import com.ss.samples.CacheServiceChildImpl.CachedEntityChild;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -40,5 +42,20 @@ public class CacheServiceChildImplTest {
         testCacheSpy.get("TEST-GET");
         Mockito.verify(testCacheSpy).updateStatistic(Mockito.any(
             CacheServiceChildImpl.CachedEntityChild.class));
+    }
+
+    @Test
+    public void statisticsResetAfterCleaningTest() {
+        CachedEntityChild cachedEntityChild = new CachedEntityChild("TEST", "TEST");
+        cachedEntityChild.setCounterOfUsage(10);
+        testCache.put("TEST", cachedEntityChild);
+
+        for (int i = 0; i < 101; i++) {
+            cachedEntityChild = new CachedEntityChild(String.valueOf(i), i);
+            testCache.put(String.valueOf(i), cachedEntityChild);
+        }
+        int expectedCounterOfUsage = 0;
+
+        Assert.assertEquals(expectedCounterOfUsage, cachedEntityChild.getCounterOfUsage());
     }
 }
