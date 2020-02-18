@@ -11,14 +11,14 @@ import static java.lang.System.currentTimeMillis;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
-public class CacheServiceImplTest_Irina {
+public class CacheServiceImplTest {
 
-    private CacheServiceImpl testCache;
     private Function<String, Object> sourceFunctionMock;
     private Consumer<AbstractCachedEntity> handlerMock;
 
+    @SuppressWarnings("unchecked")
     private CacheServiceImpl prepareDataForTest(String key, long testValue) {
-        testCache = new CacheServiceImpl();
+        CacheServiceImpl testCache = new CacheServiceImpl();
         sourceFunctionMock = mock(Function.class);
         handlerMock = mock(Consumer.class);
         testCache.setHandler(handlerMock);
@@ -47,7 +47,7 @@ public class CacheServiceImplTest_Irina {
         CacheServiceImpl preparedCache = prepareDataForTest("TEST", testValue);
 
         long testValue1 = currentTimeMillis();
-        when(sourceFunctionMock.apply("TEST1")).thenReturn(testValue1); //the behaviour for sourceFunction
+        when(sourceFunctionMock.apply("TEST1")).thenReturn(testValue1);
 
         preparedCache.get("TEST1");
         assertEquals(testValue1, preparedCache.get("TEST1"));
@@ -74,7 +74,7 @@ public class CacheServiceImplTest_Irina {
         long testValue = currentTimeMillis();
         CacheServiceImpl preparedCache = prepareDataForTest("TEST", testValue);
         long testValue1 = currentTimeMillis();
-        when(sourceFunctionMock.apply("TEST1")).thenReturn(testValue1); //the behaviour for sourceFunction
+        when(sourceFunctionMock.apply("TEST1")).thenReturn(testValue1);
         preparedCache.get("TEST1");
         verify(sourceFunctionMock, times(1)).apply("TEST1");
     }
