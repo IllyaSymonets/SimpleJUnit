@@ -6,15 +6,21 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
+@Getter
 public class CacheServiceChildImpl extends CacheServiceImpl {
 
     private int maxCapacity = 100000;
     private double percentToDelete = 0.15;
-    private double elementsToDelete = (1 - percentToDelete) * maxCapacity;
+    private int elementsToDelete = (int) (percentToDelete * maxCapacity);
+
+    public void setMaxCapacity(int maxCapacity) {
+        this.maxCapacity = maxCapacity;
+        elementsToDelete = (int) (percentToDelete * maxCapacity);
+    }
 
     @Getter
-    class CachedEntityChild extends AbstractCachedEntity {
+    @Setter
+    static class CachedEntityChild extends AbstractCachedEntity {
 
         int counterOfUsage = 0;
 
@@ -38,8 +44,7 @@ public class CacheServiceChildImpl extends CacheServiceImpl {
 
     @Override
     protected void _put(String key, AbstractCachedEntity value) {
-
-        if (size() >= maxCapacity) {
+        while (size() >= maxCapacity) {
             List<CachedEntityChild> children = convertElements(getActualValues());
             children.sort(Comparator.comparingInt(CachedEntityChild::getCounterOfUsage));
             cleanCache(children);
@@ -57,7 +62,6 @@ public class CacheServiceChildImpl extends CacheServiceImpl {
     }
 
     private void cleanCache(List<CachedEntityChild> children) {
-
         for (int i = 0; i < elementsToDelete; i++) {
             remove(children.get(0).getKey());
             children.remove(0);

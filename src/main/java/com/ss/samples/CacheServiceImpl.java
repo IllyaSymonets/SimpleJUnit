@@ -89,7 +89,7 @@ public class CacheServiceImpl {
     }
 
     @Getter
-    class AbstractCachedEntity {
+    static class AbstractCachedEntity {
 
         private String key;
         private Object value;
@@ -97,6 +97,7 @@ public class CacheServiceImpl {
         AbstractCachedEntity(String key, Object value) {
             super();
             this.value = value;
+            this.key = key;
         }
 
         public Object getValue() {
