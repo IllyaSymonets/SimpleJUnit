@@ -97,6 +97,7 @@ public class CacheServiceImpl {
         AbstractCachedEntity(String key, Object value) {
             super();
             this.value = value;
+            this.key = key;
         }
 
         public Object getValue() {
