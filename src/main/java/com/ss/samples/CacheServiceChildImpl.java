@@ -1,11 +1,11 @@
 package com.ss.samples;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 public class CacheServiceChildImpl extends CacheServiceImpl {
@@ -19,7 +19,6 @@ public class CacheServiceChildImpl extends CacheServiceImpl {
         elementsToDelete = (int) (percentToDelete * maxCapacity);
     }
 
-    @ToString
     @Getter
     @Setter
     static class CachedEntityChild extends AbstractCachedEntity {
