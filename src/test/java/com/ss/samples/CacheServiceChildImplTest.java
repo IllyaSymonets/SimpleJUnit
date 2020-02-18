@@ -4,15 +4,18 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class CacheServiceChildImplTest {
 
     private CacheServiceChildImpl testCache;
+    private CacheServiceChildImpl testCacheSpy;
 
     @Before
     public void prepareDataForTest() {
         testCache = new CacheServiceChildImpl();
         testCache.setMaxCapacity(100);
+        testCacheSpy = Mockito.spy(testCache);
     }
 
     @Test
@@ -32,7 +35,10 @@ public class CacheServiceChildImplTest {
     }
 
     @Test
-    public void updateStatistic() {
-
+    public void updateStatistic() throws NoSuchFieldException {
+        testCacheSpy.put("TEST-GET", new Object());
+        testCacheSpy.get("TEST-GET");
+        Mockito.verify(testCacheSpy).updateStatistic(Mockito.any(
+            CacheServiceChildImpl.CachedEntityChild.class));
     }
 }
