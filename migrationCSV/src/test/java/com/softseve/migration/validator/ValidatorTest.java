@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 public class ValidatorTest {
 
-    Validator validator;
+    private Validator validator;
 
     @BeforeEach
     public void init() {

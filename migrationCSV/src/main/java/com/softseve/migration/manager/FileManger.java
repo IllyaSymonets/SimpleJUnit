@@ -34,7 +34,7 @@ public class FileManger {
         }
     }
 
-    public void changePaths(List<Path> paths, Path newPath) {
+    public List<Path> changePaths(List<Path> paths, Path newPath) {
         List<Path> newPaths = new ArrayList<>();
         for (Path path : paths) {
             if (path.getFileName().equals(newPath.getFileName())) {
@@ -47,6 +47,7 @@ public class FileManger {
         paths.remove(0);
         paths.add(newPaths.get(0));
         paths.add(newPaths.get(1));
+        return paths;
     }
 
     public void createLogFile(Path pathOfDataFile,
