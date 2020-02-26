@@ -1,24 +1,72 @@
 package com.softseve.migration.loader;
 
 import com.softseve.migration.model.PatientResult;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.List;
-
 @Service
-public class PatientLoader extends AbstractLoader<PatientResult>{
+public class PatientLoader extends AbstractLoader<PatientResult> {
 
-    private final String QUERY_LOAD_TO_DB = "insert into patient_result (ID, B_DATE, REF_ID, ACCESS_DATE, ITEMS, MPI, " +
-            "PATIENT_TYPE_ID, PATIENT_TYPE_TXT, PATIENT_TYPE_REF, C_PATIENT_DATETIME, U_PATIENT_DATETIME, C_DATE, " +
-            "CONTACT_REF, P_CODE, FIRST_NAME, LAST_NAME, USER_, FACILITY, CNT_REF, CNT_REF_2, CONTACT_TYPE_ID, " +
-            "CONTACT_TYPE, CONTACT_TYPE_IDX, SUMS, C_CONTACT_DATE_TIME, U_CONTACT_DATE_TIME) " +
-            "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"; //26 elements
+    private final String QUERY_LOAD_TO_DB ="insert into patient_result ("
+        + "ID,"
+        + " B_DATE,"
+        + " REF_ID,"
+        + " ACCESS_DATE,"
+        + " ITEMS, MPI, "
+        + " PATIENT_TYPE_ID,"
+        + " PATIENT_TYPE_TXT,"
+        + " PATIENT_TYPE_REF,"
+        + " C_PATIENT_DATETIME,"
+        + " U_PATIENT_DATETIME,"
+        + " C_DATE, "
+        + " CONTACT_REF,"
+        + " P_CODE,"
+        + " FIRST_NAME,"
+        + " LAST_NAME,"
+        + " USER_,"
+        + " FACILITY,"
+        + " CNT_REF,"
+        + " CNT_REF_2,"
+        + " CONTACT_TYPE_ID, "
+        + "CONTACT_TYPE,"
+        + " CONTACT_TYPE_IDX,"
+        + " SUMS,"
+        + " C_CONTACT_DATE_TIME,"
+        + " U_CONTACT_DATE_TIME) "
+        + " values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+        + " ON CONFLICT (ID) DO UPDATE SET "
+        + " B_DATE = excluded.B_DATE,"
+        + " REF_ID = excluded.REF_ID,"
+        + " ACCESS_DATE = excluded.ACCESS_DATE,"
+        + " ITEMS = excluded.ITEMS ,"
+        + " MPI = excluded.MPI,"
+        + " PATIENT_TYPE_ID = excluded.PATIENT_TYPE_ID,"
+        + " PATIENT_TYPE_TXT = excluded.PATIENT_TYPE_TXT ,"
+        + " PATIENT_TYPE_REF = excluded.PATIENT_TYPE_REF,"
+        + " C_PATIENT_DATETIME = excluded.C_PATIENT_DATETIME,"
+        + " U_PATIENT_DATETIME = excluded.U_PATIENT_DATETIME,"
+        + " C_DATE = excluded.C_DATE,"
+        + " CONTACT_REF = excluded.CONTACT_REF,"
+        + " P_CODE = excluded.P_CODE,"
+        + " FIRST_NAME = excluded.FIRST_NAME ,"
+        + " LAST_NAME = excluded.LAST_NAME,"
+        + " USER_ = excluded.USER_,"
+        + " FACILITY = excluded.FACILITY,"
+        + " CNT_REF = excluded.CNT_REF,"
+        + " CNT_REF_2 = excluded.CNT_REF_2,"
+        + " CONTACT_TYPE_ID = excluded.CONTACT_TYPE_ID,"
+        + " CONTACT_TYPE = excluded.CONTACT_TYPE,"
+        + " CONTACT_TYPE_IDX = excluded.CONTACT_TYPE_IDX,"
+        + " SUMS = excluded.SUMS,"
+        + " C_CONTACT_DATE_TIME = excluded.C_CONTACT_DATE_TIME,"
+        + " U_CONTACT_DATE_TIME = excluded.U_CONTACT_DATE_TIME";
+
 
     private final JdbcTemplate jdbcTemplate;
     private static final int DEFAULT_BATCH_SIZE = 50;
@@ -31,8 +79,9 @@ public class PatientLoader extends AbstractLoader<PatientResult>{
 
     @Transactional(rollbackFor = Exception.class)
     public void load(List<PatientResult> data) {
-        getDataParts(data, this.getCustomPartSize()).forEach(part -> {
-            jdbcTemplate.batchUpdate(QUERY_LOAD_TO_DB, new BatchPreparedStatementSetter() {
+
+        getDataParts(data, this.getCustomPartSize()).forEach(
+            part -> jdbcTemplate.batchUpdate(QUERY_LOAD_TO_DB, new BatchPreparedStatementSetter() {
 
                 @Override
                 public void setValues(PreparedStatement ps, int i) throws SQLException {
@@ -68,7 +117,6 @@ public class PatientLoader extends AbstractLoader<PatientResult>{
                 public int getBatchSize() {
                     return part.size();
                 }
-            });
-        });
+            }));
     }
 }
