@@ -1,0 +1,46 @@
+plugins {
+    id 'org.springframework.boot' version '2.2.4.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'java'
+}
+
+group = 'com.softseve'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    compile group: 'org.postgresql', name: 'postgresql', version: '42.2.9'
+    compile group: 'com.opencsv', name: 'opencsv', version: '5.0'
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
+    compile group: 'ch.qos.logback', name: 'logback-core', version: '1.2.3'
+    testCompile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    testImplementation 'org.springframework.batch:spring-batch-test'
+    compile "org.apache.commons:commons-csv:1.8"
+}
+
+test {
+    useJUnitPlatform()
+}
