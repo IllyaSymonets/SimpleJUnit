@@ -5,7 +5,8 @@ import lombok.Getter;
 @Getter
 public enum FileType {
 
-    CSV(".csv");
+    CSV(".csv"),
+    TXT(".txt");
 
     private String fileType;
 
